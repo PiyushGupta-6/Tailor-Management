@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailor</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}">
+</head>
+
+<body>
+    <main class="split-container">
+
+        <div class="split-side left-side">
+
+            <form action="/createacc" method="POST">
+                <div class="createpg">
+                    <div class="info">
+                        <h1>Create Account</h1>
+                        <span>Welcome ! Please Create your account to continue</span>
+                    </div>
+                    <div class="input ">
+                        {% if error %}<p class="login-error">{{ error }}</p>{% endif %}
+                        <input type="text" name="username" placeholder="Enter Name" required>
+                        <input type="email" name="email" placeholder="Enter Email" required>
+                        <input type="password" name="password" placeholder="Create Password (8+ characters)" minlength="8" required>
+                        <button>Sign Up</button>
+                    </div>
+                    <span>Have an account? <a href="/login">Sign In</a></span>
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="split-side right-side">
+
+        </div>
+    </main>
+</body>
+
+</html>

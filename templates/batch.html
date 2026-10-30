@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TailorPro - Batches</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+
+<body>
+    {%include 'navbar.html' %}
+    <div class="app">
+
+        <!-- =========================
+         MAIN
+    ========================== -->
+
+        <main class="main">
+
+            <!-- Header -->
+
+            <header class="top-header">
+
+                <div class="page-title">
+
+                    <h1>
+                        Batch
+                    </h1>
+
+                    <p>
+                        Manage your Batch Students
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <!-- =========================
+             BATCH CARDS
+        ========================== -->
+
+            <section class="batch-grid">
+
+                <!-- Morning -->
+
+                <div class="batch-card selected" id="morningBatch" onclick="selectBatch('morning')">
+
+                    <div class="batch-top">
+
+                        <div class="batch-icon">
+                            🌅
+                        </div>
+
+                        <span class="status">
+                            Active
+                        </span>
+
+                    </div>
+
+                    <h2>Morning Batch</h2>
+
+                    <div class="batch-time">
+                        <i class="fa-regular fa-clock"></i> 10:00 AM – 12:00 PM
+                    </div>
+
+                    <div class="batch-days">
+                        📅 Monday – Saturday
+                    </div>
+
+                    <div class="student-count">
+                        Total Students:
+                        <strong id="morningCount">0</strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Evening -->
+
+                <div class="batch-card" id="eveningBatch" onclick="selectBatch('evening')">
+
+                    <div class="batch-top">
+
+                        <div class="batch-icon">
+                            🌆
+                        </div>
+
+                        <span class="status">
+                            Active
+                        </span>
+
+                    </div>
+
+                    <h2>Evening Batch</h2>
+
+                    <div class="batch-time">
+                        <i class="fa-regular fa-clock"></i> 4:00 PM – 6:00 PM
+                    </div>
+
+                    <div class="batch-days">
+                        📅 Monday – Saturday
+                    </div>
+
+                    <div class="student-count">
+                        Total Students:
+                        <strong id="eveningCount">0</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+             SELECTED BATCH DETAILS
+        ========================== -->
+
+            <section class="batch-details">
+
+                <div class="details-header">
+
+                    <div class="details-title">
+
+                        <h2 id="selectedBatchTitle">
+                            Morning Batch
+                        </h2>
+
+                        <p id="selectedBatchInfo">
+                            10:00 AM – 12:00 PM • Monday – Saturday
+                        </p>
+
+                    </div>
+
+                    <button class="add-btn" onclick="openAddStudentModal()">
+                        + Add Student
+                    </button>
+
+                </div>
+
+
+                <!-- Student Table -->
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>STUDENT</th>
+                                <th>ADMISSION DATE</th>
+                                <th>MOBILE NUMBER</th>
+                                <th>ACTION</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="studentTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- =========================
+     ADD / EDIT STUDENT MODAL
+========================== -->
+
+    <div class="modal-overlay" id="GModal">
+
+        <div class="modal" id="studentModal">
+
+            <div class="modal-header">
+
+                <h2 id="modalTitle">
+                    Add Student
+                </h2>
+
+                <button class="close-btn" onclick="closeModal()">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="studentForm" action="/add_student" method="POST">
+                <input type="hidden" id="studentBatch" name="batch">
+
+                <div class="form-group">
+
+                    <label>
+                        Student Name
+                    </label>
+
+                    <input type="text" name="name" id="studentName" placeholder="Enter student name" required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Mobile Number
+                    </label>
+
+                    <input type="tel" name="phone" id="studentPhone" placeholder="Enter mobile number" required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Admission Date
+                    </label>
+
+                    <input type="date" name="admission_date" id="admissionDate" required>
+
+                </div>
+
+
+                <button type="submit" class="save-btn">
+                    Save Student
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+        window.dbStudents = {{ students | tojson }};
+    </script>
+
+    <script src="{{url_for('static',filename='script.js')}}"></script>
+</body>
+
+</html>

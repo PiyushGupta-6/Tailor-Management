@@ -1,0 +1,22 @@
+<aside class="sidebar">
+    <a href="{{ url_for('home') }}" class="logo logo-link">
+        <div class="logo-icon"><i class="fa-solid fa-scissors"></i></div>
+        <div><h2>TailorPro</h2><p>Stitching &amp; Classes</p></div>
+    </a>
+    <nav class="nav">
+        <a href="{{ url_for('home') }}" class="nav-item {% if request.path == '/home' %}active{% endif %}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="{{ url_for('order') }}" class="nav-item {% if request.path == '/order' %}active{% endif %}"><i class="fa-solid fa-scissors"></i> Orders</a>
+        <a href="{{ url_for('billing') }}" class="nav-item {% if request.path == '/billing' %}active{% endif %}"><i class="fa-solid fa-sack-dollar"></i> Billing</a>
+        <a href="{{ url_for('batch') }}" class="nav-item {% if request.path == '/batch' %}active{% endif %}"><i class="fa-solid fa-users"></i> Batches</a>
+        <a href="{{ url_for('report') }}" class="nav-item {% if request.path == '/report' %}active{% endif %}"><i class="fa-solid fa-chart-line"></i> Reports</a>
+        <a href="{{ url_for('logout') }}" class="nav-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    </nav>
+</aside>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+    <a href="{{ url_for('home') }}" class="bottom-item {% if request.path == '/home' %}active{% endif %}"><span><i class="fa-solid fa-house"></i></span>Home</a>
+    <a href="{{ url_for('order') }}" class="bottom-item {% if request.path == '/order' %}active{% endif %}"><span><i class="fa-solid fa-scissors"></i></span>Orders</a>
+    <a href="{{ url_for('billing') }}" class="bottom-item {% if request.path == '/billing' %}active{% endif %}"><span><i class="fa-solid fa-sack-dollar"></i></span>Billing</a>
+    <a href="{{ url_for('batch') }}" class="bottom-item {% if request.path == '/batch' %}active{% endif %}"><span><i class="fa-solid fa-users"></i></span>Batch</a>
+    <a href="{{ url_for('report') }}" class="bottom-item {% if request.path == '/report' %}active{% endif %}"><span><i class="fa-solid fa-chart-line"></i></span>Report</a>
+</nav>

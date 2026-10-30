@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TailorPro - Reports</title>
+
+    <link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+    {%include 'navbar.html' %}
+    <div class="app">
+
+
+        <!-- =========================
+             MAIN
+        ========================== -->
+
+        <main class="main">
+
+            <!-- HEADER -->
+
+            <header class="top-header">
+
+                <div class="page-title">
+
+                    <h1>
+                        Reports
+                    </h1>
+
+                    <p>
+                        View business performance and statistics
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <!-- =========================
+                 REPORT SUMMARY
+            ========================== -->
+
+            <section class="summary-grid">
+
+                <div class="summary-card">
+
+                    <div class="summary-icon all-icon">
+                        🧾
+                    </div>
+
+                    <div class="summary-number" id="reportOrders">
+                        0
+                    </div>
+
+                    <div class="summary-label">
+                        Total Orders
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon ready-icon">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+
+                    <div class="summary-number" id="reportRevenue">
+                        ₹0
+                    </div>
+
+                    <div class="summary-label">
+                        Total Revenue
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon pending-icon">
+                        <i class="fa-regular fa-hourglass-half"></i>
+                    </div>
+
+                    <div class="summary-number" id="reportPending">
+                        0
+                    </div>
+
+                    <div class="summary-label">
+                        Pending Orders
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon completed-icon">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+
+                    <div class="summary-number" id="reportStudents">
+                        0
+                    </div>
+
+                    <div class="summary-label">
+                        Total Students
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 REPORT FILTER
+            ========================== -->
+
+            <section class="order-section">
+
+                <div class="order-header">
+
+                    <h2>
+                        Business Reports
+                    </h2>
+
+                </div>
+
+
+                <div class="filter-area">
+
+                    <div class="form-group">
+
+                        <label>
+                            Report Period
+                        </label>
+
+                        <select id="reportPeriod" onchange="generateReport()">
+
+                            <option value="today">
+                                Today
+                            </option>
+
+                            <option value="week">
+                                This Week
+                            </option>
+
+                            <option value="month" selected>
+                                This Month
+                            </option>
+
+                            <option value="year">
+                                This Year
+                            </option>
+
+                            <option value="all">
+                                All Time
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 ORDER REPORT
+            ========================== -->
+
+            <section class="order-section">
+
+                <div class="order-header">
+
+                    <h2>
+                        Order Statistics
+                    </h2>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    CATEGORY
+                                </th>
+
+                                <th>
+                                    COUNT
+                                </th>
+
+                                <th>
+                                    AMOUNT
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="orderReportBody">
+
+                            <tr>
+
+                                <td>
+                                    Total Orders
+                                </td>
+
+                                <td id="reportTotalOrderCount">
+                                    0
+                                </td>
+
+                                <td id="reportTotalOrderAmount">
+                                    ₹0
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    In Progress
+                                </td>
+
+                                <td id="reportInProgress">
+                                    0
+                                </td>
+
+                                <td>
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Ready
+                                </td>
+
+                                <td id="reportReady">
+                                    0
+                                </td>
+
+                                <td>
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Delivered
+                                </td>
+
+                                <td id="reportDelivered">
+                                    0
+                                </td>
+
+                                <td>
+                                    -
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 PAYMENT REPORT
+            ========================== -->
+
+            <section class="order-section">
+
+                <div class="order-header">
+
+                    <h2>
+                        Payment Report
+                    </h2>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    PAYMENT STATUS
+                                </th>
+
+                                <th>
+                                    NUMBER OF ORDERS
+                                </th>
+
+                                <th>
+                                    AMOUNT
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="paymentReportBody">
+
+                            <tr>
+
+                                <td>
+                                    Paid
+                                </td>
+
+                                <td id="paidOrderCount">
+                                    0
+                                </td>
+
+                                <td id="paidOrderAmount">
+                                    ₹0
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Partial
+                                </td>
+
+                                <td id="partialOrderCount">
+                                    0
+                                </td>
+
+                                <td id="partialOrderAmount">
+                                    ₹0
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Unpaid
+                                </td>
+
+                                <td id="unpaidOrderCount">
+                                    0
+                                </td>
+
+                                <td id="unpaidOrderAmount">
+                                    ₹0
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 BATCH REPORT
+            ========================== -->
+
+            <section class="order-section">
+
+                <div class="order-header">
+
+                    <h2>
+                        Batch Statistics
+                    </h2>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    BATCH
+                                </th>
+
+                                <th>
+                                    TIME
+                                </th>
+
+                                <th>
+                                    STUDENTS
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    Morning Batch
+                                </td>
+
+                                <td>
+                                    10:00 AM – 12:00 PM
+                                </td>
+
+                                <td id="reportMorningStudents">
+                                    0
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Evening Batch
+                                </td>
+
+                                <td>
+                                    4:00 PM – 6:00 PM
+                                </td>
+
+                                <td id="reportEveningStudents">
+                                    0
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        window.dbOrders = {{ orders | tojson }};
+        window.dbStudentCounts = {{ student_counts | tojson }};
+    </script>
+    <script src="{{url_for('static',filename='script.js')}}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TailorPro - Orders</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+
+<body>
+    {%include 'navbar.html' %}
+
+    <div class="app">
+
+        <main class="main">
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>Orders</h1>
+                    <p>Manage customer stitching orders</p>
+                </div>
+            </header>
+
+            <section class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon all-icon">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div class="summary-number" id="totalOrders">
+                        0
+                    </div>
+                    <div class="summary-label">
+                        Total Orders
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon ready-icon">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div class="summary-number" id="readyOrders">
+                        0
+                    </div>
+                    <div class="summary-label">
+                        Ready
+                    </div>
+                </div>
+
+
+                <div class="summary-card">
+                    <div class="summary-icon completed-icon">
+                        <i class="fa-solid fa-inbox"></i>
+                    </div>
+                    <div class="summary-number" id="completedOrders">
+                        0
+                    </div>
+                    <div class="summary-label">
+                        Delivered
+                    </div>
+                </div>
+            </section>
+
+            <section class="order-section">
+                <div class="order-header">
+                    <h2>
+                        All Orders
+                    </h2>
+                    <button class="new-order-btn" onclick="openAddOrderModal()">
+                        + New Order
+                    </button>
+                </div>
+
+                <div class="filter-area">
+                    <div class="search-box">
+                        <span>
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="searchInput" placeholder="Search order, customer or garment..."
+                            oninput="renderOrders()">
+                    </div>
+                </div>
+
+                <!-- TABLE -->
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th> ORDER</th>
+                                <th>CUSTOMER</th>
+                                <th> GARMENT</th>
+                                <th>DELIVERY</th>
+                                <th> AMOUNT</th>
+                                <th> PAYMENT</th>
+                                <th> STATUS</th>
+                                <th> ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+
+
+    <!-- =========================
+     MOBILE NAV
+========================== -->
+
+
+
+
+    <div class="modal-overlay" id="GModal">
+        <div class="modal" id="orderModal">
+            <div class="modal-header">
+
+                <h2 id="modalTitle">
+                    New Order
+                </h2>
+
+                <button class="close-btn" onclick="closeModal()">
+                    ×
+                </button>
+
+            </div>
+
+
+
+            <form id="Form" action="/add_order" method="POST">
+
+                <!-- CUSTOMER -->
+
+                <div class="form-group">
+
+                    <label>
+                        Customer Name
+                    </label>
+
+                    <input type="text" name="customer" id="customerName" placeholder="Enter customer name" required>
+
+                </div>
+
+                <div class="form-group">
+                    <label>Customer phone</label>
+                    <input type="tel" name="phone" id="customerPhone" placeholder="Enter mobile number" required>
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Garment
+                    </label>
+
+                    <select id="garment" name="garment" required>
+
+                        <option value="">
+                            Select garment
+                        </option>
+
+                        <option>
+                            Blouse
+                        </option>
+
+                        <option>
+                            Kurti
+                        </option>
+
+                        <option>
+                            Saree Blouse
+                        </option>
+
+                        <option>
+                            Salwar Suit
+                        </option>
+
+                        <option>
+                            Shirt
+                        </option>
+
+                        <option>
+                            Pant
+                        </option>
+
+                        <option>
+                            Dress
+                        </option>
+
+                        <option>
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- ORDER DATE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Order Date
+                    </label>
+
+                    <input type="date" name="order_date" id="orderDate" required>
+
+                </div>
+
+
+
+                <!-- DELIVERY DATE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Delivery Date
+                    </label>
+
+                    <input type="date" name="delivery_date" id="deliveryDate" required>
+
+                </div>
+
+
+
+                <!-- AMOUNT -->
+
+                <div class="form-group">
+
+                    <label>
+                        Total Amount
+                    </label>
+
+                    <input type="number" name="amount" id="amount" placeholder="₹ Amount" min="0" required>
+
+                </div>
+
+
+
+                <!-- PAYMENT -->
+
+                <div class="form-group">
+
+                    <label>Initial payment (optional)</label>
+                    <input type="number" name="initial_payment" id="initialPayment" min="0" step="0.01" value="0">
+
+                </div>
+
+                <div class="form-group">
+                    <label>Payment method</label>
+                    <select name="payment_method" id="initialPaymentMethod">
+                        <option>Cash</option><option>UPI</option><option>Card</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Order status</label>
+                    <select name="status" id="orderStatus">
+                        <option>Received</option><option>In Progress</option><option>Ready</option><option>Delivered</option>
+                    </select>
+                </div>
+
+
+                <button type="submit" class="save-btn">
+                    Save Order
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+        window.dbOrders = {{ orders | tojson }};
+    </script>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Tailor Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="dashboard-body">
+    {% include 'navbar.html' %}
+    <div class="app">
+        <main class="main dashboard-main">
+            <header class="dashboard-topbar">
+                <div>
+                    <span class="eyebrow">YOUR WORKSPACE</span>
+                    <h1>Good day, {{ current_user.username }}</h1>
+                    <p>Here’s the latest from your tailoring studio.</p>
+                </div>
+                <a class="dashboard-profile" href="{{ url_for('logout') }}" title="Log out">
+                    <span>{{ current_user.username[:1]|upper }}</span>
+                    <span class="profile-name">{{ current_user.username }}</span>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+            </header>
+
+            <section class="dashboard-hero">
+                <div class="hero-copy">
+                    <span class="hero-kicker">TAILOR PRO <span>·</span> STITCHING & CLASSES</span>
+                    <h2>Make today<br>count.</h2>
+                    <p>Keep orders moving, stay on top of payments, and make room for your next great fit.</p>
+                    <a href="{{ url_for('order') }}" class="hero-button">View orders <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="hero-art" aria-hidden="true">
+                    <div class="hero-orbit orbit-one"></div>
+                    <div class="hero-orbit orbit-two"></div>
+                    <div class="hero-sewing-icon"><i class="fa-solid fa-scissors"></i></div>
+                    <span class="hero-stitch stitch-one"></span>
+                    <span class="hero-stitch stitch-two"></span>
+                    <span class="hero-stitch stitch-three"></span>
+                </div>
+                <div class="hero-date"><i class="fa-regular fa-calendar"></i> {{ today.strftime('%A, %d %B') }}</div>
+            </section>
+
+            <section class="dashboard-stats" aria-label="Business summary">
+                <a class="dashboard-stat stat-orders" href="{{ url_for('order') }}">
+                    <span class="dashboard-stat-icon"><i class="fa-solid fa-scissors"></i></span>
+                    <span class="dashboard-stat-label">Open orders</span>
+                    <strong>{{ pending_count }}</strong>
+                    <span class="dashboard-stat-note"><i class="fa-regular fa-clock"></i> {{ due_today }} due today</span>
+                </a>
+                <a class="dashboard-stat stat-balance" href="{{ url_for('billing') }}">
+                    <span class="dashboard-stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></span>
+                    <span class="dashboard-stat-label">Outstanding</span>
+                    <strong>₹{{ "{:,.0f}".format(pending_balance) }}</strong>
+                    <span class="dashboard-stat-note">Customer balances</span>
+                </a>
+                <a class="dashboard-stat stat-students" href="{{ url_for('batch') }}">
+                    <span class="dashboard-stat-icon"><i class="fa-solid fa-users"></i></span>
+                    <span class="dashboard-stat-label">Students</span>
+                    <strong>{{ student_count }}</strong>
+                    <span class="dashboard-stat-note">Across your classes</span>
+                </a>
+                <a class="dashboard-stat stat-batches" href="{{ url_for('batch') }}">
+                    <span class="dashboard-stat-icon"><i class="fa-regular fa-clock"></i></span>
+                    <span class="dashboard-stat-label">Active batches</span>
+                    <strong>{{ batch_count }}</strong>
+                    <span class="dashboard-stat-note">Morning & evening</span>
+                </a>
+            </section>
+
+            <section class="dashboard-lower">
+                <div class="dashboard-panel actions-panel">
+                    <div class="panel-heading">
+                        <div><span class="eyebrow">GET THINGS DONE</span><h2>Quick actions</h2></div>
+                    </div>
+                    <div class="dashboard-actions">
+                        <a href="{{ url_for('order') }}"><span class="quick-icon quick-indigo"><i class="fa-solid fa-plus"></i></span><span><strong>New order</strong><small>Start a customer order</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                        <a href="{{ url_for('billing') }}"><span class="quick-icon quick-green"><i class="fa-solid fa-receipt"></i></span><span><strong>Billing</strong><small>Record a customer payment</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                        <a href="{{ url_for('batch') }}"><span class="quick-icon quick-amber"><i class="fa-solid fa-user-plus"></i></span><span><strong>New student</strong><small>Add to a class batch</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                        <a href="{{ url_for('report') }}"><span class="quick-icon quick-blue"><i class="fa-solid fa-chart-column"></i></span><span><strong>Report</strong><small>Review business activity</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                    </div>
+                </div>
+
+                <aside class="dashboard-panel today-panel">
+                    <span class="eyebrow">A QUICK CHECK-IN</span>
+                    <h2>Your studio, at a glance</h2>
+                    <p>There {{ 'is' if pending_count == 1 else 'are' }} <strong>{{ pending_count }} open {{ 'order' if pending_count == 1 else 'orders' }}</strong> waiting for the next step.</p>
+                    <div class="today-divider"></div>
+                    <div class="today-detail"><span class="today-detail-icon"><i class="fa-regular fa-calendar-check"></i></span><span><strong>{{ due_today }} due today</strong><small>Check delivery dates before closing</small></span></div>
+                    <a class="text-link" href="{{ url_for('report') }}">Open report <i class="fa-solid fa-arrow-right"></i></a>
+                </aside>
+            </section>
+            <footer class="dashboard-footer">Tailor Pro <span>·</span> Your craft, organized.</footer>
+        </main>
+    </div>
+</body>
+</html>

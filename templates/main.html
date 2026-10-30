@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailor</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}">
+</head>
+<body>
+    <div class="landingpage">
+        <div class="appname">
+            <h1>Tailor Pro</h1>
+            <p>Stitching Dream, <br> Teachhing Skill</p>
+            <div>Manage you Business in one palce</div>
+        </div>
+        <img src="{{url_for('static',filename='images/login.jpeg')}}" alt="login">
+        <div class="acc-btn">
+            <a href="/login"><button class="login">Login</button></a>
+            <a href="/createacc"><button class="create">Create Account</button></a>
+        </div>
+        
+    </div>
+</body>
+<script src="script.js"></script>
+</html> 
