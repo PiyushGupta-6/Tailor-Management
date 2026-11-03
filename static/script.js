@@ -907,12 +907,7 @@ function renderOrders() {
 
             <td>
 
-                <span
-                    class="${getPaymentClass(order.payment)}">
-
-                    ${order.payment}
-
-                </span>
+                ${money(order.paid ?? order.initialPayment ?? 0)}
 
             </td>
 
@@ -1163,6 +1158,10 @@ function editOrder(id) {
 
     }
 
+    if ($("initialPayment")) {
+        $("initialPayment").value = Number(order.paid ?? order.initialPayment ?? 0);
+    }
+
 
     if ($("orderStatus")) $("orderStatus").value = order.status || "Received";
 
@@ -1239,6 +1238,8 @@ function setupOrderForm() {
                     $("amount")?.value || 0
                 );
 
+            const initialPayment = Number($("initialPayment")?.value || 0);
+
 
             const phone = $("customerPhone")?.value.trim() || "";
 
@@ -1260,7 +1261,7 @@ function setupOrderForm() {
                 !garment ||
                 !orderDate ||
                 !deliveryDate ||
-                amount <= 0
+                amount <= 0 || initialPayment < 0 || initialPayment > amount
             ) {
 
                 alert(
@@ -1284,6 +1285,8 @@ function setupOrderForm() {
                 formData.append("order_date", orderDate);
                 formData.append("delivery_date", deliveryDate);
                 formData.append("amount", amount);
+                formData.append("initial_payment", initialPayment);
+                formData.append("payment_method", $("initialPaymentMethod")?.value || "Cash");
                 formData.append("phone", phone);
                 formData.append("status", $("orderStatus")?.value || "Received");
 
@@ -1398,8 +1401,9 @@ function setupOrderForm() {
                     amount:
                         amount,
 
-                    payment:
-                        payment,
+                    paid: initialPayment,
+                    initialPayment,
+                    balance: amount - initialPayment,
 
                     status:
                         status
@@ -1466,7 +1470,7 @@ function viewOrder(id) {
         money(order.amount) +
 
         "\nPayment: " +
-        order.payment +
+        money(order.paid ?? order.initialPayment ?? 0) +
 
         "\nStatus: " +
         order.status
@@ -2047,6 +2051,23 @@ function setupBillingForm() {
    REPORTS
 ========================================================= */
 
+function reportDateMatches(value, period, now = new Date()) {
+    if (!value) return false;
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return false;
+    if (period === "all") return true;
+    if (period === "today") return date.toDateString() === new Date(now.getFullYear(), now.getMonth(), now.getDate()).toDateString();
+    if (period === "week") {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        const end = new Date(start);
+        end.setDate(end.getDate() + 7);
+        return date >= start && date < end;
+    }
+    if (period === "month") return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    if (period === "year") return date.getFullYear() === now.getFullYear();
+    return true;
+}
+
 function generateReport() {
 
     /*
@@ -2068,85 +2089,10 @@ function generateReport() {
         "all";
 
 
-    const now =
-        new Date();
-
-
-    const filteredOrders =
-        orders.filter(order => {
-
-            if (period === "all") {
-                return true;
-            }
-
-
-            const date =
-                new Date(
-                    order.orderDate +
-                    "T00:00:00"
-                );
-
-
-            if (period === "today") {
-
-                return (
-                    date.toDateString() ===
-                    now.toDateString()
-                );
-
-            }
-
-
-            if (period === "week") {
-
-                const start =
-                    new Date(now);
-
-
-                start.setDate(
-                    now.getDate() -
-                    now.getDay()
-                );
-
-
-                start.setHours(
-                    0,
-                    0,
-                    0,
-                    0
-                );
-
-
-                return date >= start;
-            }
-
-
-            if (period === "month") {
-
-                return (
-                    date.getMonth() ===
-                    now.getMonth() &&
-
-                    date.getFullYear() ===
-                    now.getFullYear()
-                );
-
-            }
-
-
-            if (period === "year") {
-
-                return (
-                    date.getFullYear() ===
-                    now.getFullYear()
-                );
-
-            }
-
-
-            return true;
-
-        });
+    const now = new Date();
+    const filteredOrders = orders.filter(order => reportDateMatches(order.orderDate, period, now));
+    const sourceStudents = window.dbStudents || [];
+    const filteredStudents = sourceStudents.filter(student => reportDateMatches(student.admissionDate, period, now));
 
 
     const orderValue =
@@ -2159,14 +2105,8 @@ function generateReport() {
     const revenue = filteredOrders.reduce((sum, order) => sum + Number(order.paid || 0), 0);
 
 
-    const inProgress =
-        filteredOrders.filter(
-            order =>
-                ![
-                    "Ready",
-                    "Delivered"
-                ].includes(order.status)
-        ).length;
+    const inProgressOrders = filteredOrders.filter(order => ["Received", "In Progress"].includes(order.status));
+    const inProgress = inProgressOrders.length;
 
 
     const ready =
@@ -2212,13 +2152,9 @@ function generateReport() {
 
 
     if ($("reportStudents")) {
-
-        $("reportStudents").textContent =
-
-        window.dbStudentCounts
-            ? window.dbStudentCounts.morning + window.dbStudentCounts.evening
-            : batches.morning.students.length + batches.evening.students.length;
-
+        $("reportStudents").textContent = sourceStudents.length
+            ? filteredStudents.length
+            : (period === "all" ? batches.morning.students.length + batches.evening.students.length : 0);
     }
 
 
@@ -2251,6 +2187,7 @@ function generateReport() {
             inProgress;
 
     }
+    if ($("reportInProgressAmount")) $("reportInProgressAmount").textContent = money(inProgressOrders.reduce((sum, order) => sum + Number(order.amount || 0), 0));
 
 
     if ($("reportReady")) {
@@ -2260,6 +2197,7 @@ function generateReport() {
             ready;
 
     }
+    if ($("reportReadyAmount")) $("reportReadyAmount").textContent = money(filteredOrders.filter(order => order.status === "Ready").reduce((sum, order) => sum + Number(order.amount || 0), 0));
 
 
     if ($("reportDelivered")) {
@@ -2269,30 +2207,25 @@ function generateReport() {
             delivered;
 
     }
+    if ($("reportDeliveredAmount")) $("reportDeliveredAmount").textContent = money(filteredOrders.filter(order => order.status === "Delivered").reduce((sum, order) => sum + Number(order.amount || 0), 0));
 
 
     /*
        Payment statistics
     */
 
-    const paidOrders =
-        filteredOrders.filter(
-            order =>
-                order.payment === "Paid"
-        );
+    const paidOrders = filteredOrders.filter(order => Number(order.paid || 0) >= Number(order.amount || 0));
 
 
     const partialOrders =
         filteredOrders.filter(
-            order =>
-                order.payment === "Partial"
+            order => Number(order.paid || 0) > 0 && Number(order.paid || 0) < Number(order.amount || 0)
         );
 
 
     const unpaidOrders =
         filteredOrders.filter(
-            order =>
-                order.payment === "Unpaid"
+            order => Number(order.paid || 0) <= 0
         );
 
 
@@ -2369,21 +2302,36 @@ function generateReport() {
        Batch statistics
     */
 
-    if ($("reportMorningStudents")) {
+    if ($("reportMorningStudents")) $("reportMorningStudents").textContent = sourceStudents.length
+        ? filteredStudents.filter(student => student.batch === "morning").length
+        : (period === "all" ? batches.morning.students.length : 0);
+    if ($("reportEveningStudents")) $("reportEveningStudents").textContent = sourceStudents.length
+        ? filteredStudents.filter(student => student.batch === "evening").length
+        : (period === "all" ? batches.evening.students.length : 0);
 
-        $("reportMorningStudents")
-            .textContent =
-            window.dbStudentCounts ? window.dbStudentCounts.morning : batches.morning.students.length;
-
-    }
-
-
-    if ($("reportEveningStudents")) {
-
-        $("reportEveningStudents")
-            .textContent =
-            window.dbStudentCounts ? window.dbStudentCounts.evening : batches.evening.students.length;
-
+    const detailsBody = $("reportOrderDetails");
+    if (detailsBody) {
+        detailsBody.replaceChildren();
+        if (filteredOrders.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 8;
+            cell.textContent = "No orders in this period";
+            row.appendChild(cell);
+            detailsBody.appendChild(row);
+        } else {
+            filteredOrders.forEach(order => {
+                const row = document.createElement("tr");
+                const values = [order.id, order.customer, order.garment, formatDate(order.orderDate), order.status,
+                    money(order.amount), money(order.paid), money(order.balance)];
+                values.forEach(value => {
+                    const cell = document.createElement("td");
+                    cell.textContent = value ?? "";
+                    row.appendChild(cell);
+                });
+                detailsBody.appendChild(row);
+            });
+        }
     }
 }
 

@@ -101,7 +101,7 @@ def order_json(order):
         "id": order.id, "customer": order.customer, "phone": order.phone,
         "garment": order.garment, "orderDate": order.order_date.isoformat(),
         "deliveryDate": order.delivery_date.isoformat(), "amount": order.amount,
-        "payment": order.payment, "paid": paid,
+        "payment": order.payment, "paid": paid, "initialPayment": paid,
         "balance": round(max(0, order.amount - paid), 2), "status": order.status,
     }
 
@@ -262,12 +262,30 @@ def edit_order(order_id):
         if not name or not math.isfinite(amount) or amount <= 0 or delivery_date < order_date:
             raise ValueError("Check the customer, amount, and order dates.")
         paid = paid_total(order)
-        if amount < paid:
-            raise ValueError("Order total cannot be less than payments already received.")
+        initial_paid = float(request.form.get("initial_payment", paid) or 0)
+        if not math.isfinite(initial_paid) or initial_paid < 0 or initial_paid > amount:
+            raise ValueError("Initial payment must be between zero and the order total.")
         order.customer, order.phone = name, phone or "Not added"
         order.garment = request.form.get("garment", order.garment).strip()
         order.order_date, order.delivery_date = order_date, delivery_date
         order.amount = amount
+        difference = round(initial_paid - paid, 2)
+        if difference > 0:
+            method = request.form.get("payment_method", "Cash")
+            if method not in PAYMENT_METHODS:
+                raise ValueError("Choose a valid payment method.")
+            db.session.add(Payment(order_record=order, amount=difference,
+                                   payment_method=method, method=method))
+        elif difference < 0:
+            remaining = -difference
+            for payment in sorted(order.payments, key=lambda item: (item.payment_date, item.id), reverse=True):
+                reduction = min(payment.amount, remaining)
+                payment.amount = round(payment.amount - reduction, 2)
+                remaining = round(remaining - reduction, 2)
+                if payment.amount == 0:
+                    db.session.delete(payment)
+                if remaining == 0:
+                    break
         requested_status = request.form.get("status", order.status)
         if requested_status not in ORDER_STATUSES:
             raise ValueError("Choose a valid order status.")
@@ -345,8 +363,10 @@ def add_payment(order_id):
 @login_required
 def report():
     data = [order_json(item) for item in Order.query.order_by(Order.id.desc()).all()]
-    students = Student.query.all()
+    students = Student.query.order_by(Student.name).all()
     return render_template("report.html", orders=data,
+                           students=[{"id": s.id, "name": s.name, "admissionDate": s.admission_date.isoformat(),
+                                      "batch": s.batch} for s in students],
                            student_counts={"morning": sum(s.batch == "morning" for s in students),
                                            "evening": sum(s.batch == "evening" for s in students)})
 
