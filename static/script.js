@@ -555,7 +555,7 @@ function deleteStudent(id) {
         .then(response => response.json())
         .then(data => {
 
-            if (result.success) {
+            if (data.success) {
 
                 batches[selectedBatch].students =
                     batches[selectedBatch]
@@ -665,7 +665,7 @@ function setupStudentForm() {
                     .then(response => response.json())
                     .then(data => {
 
-                        if (result.success) {
+                        if (data.success) {
 
                             const student =
                                 batches[selectedBatch]
@@ -1085,6 +1085,27 @@ function openAddOrderModal() {
     openModal("orderModal");
 }
 
+function setMeasurementFields(measurements = {}) {
+    const fields = {
+        chest: "measurementChest", waist: "measurementWaist", hip: "measurementHip",
+        shoulder: "measurementShoulder", sleeve: "measurementSleeve", length: "measurementLength",
+        notes: "measurementNotes"
+    };
+    Object.entries(fields).forEach(([field, elementId]) => {
+        const element = $(elementId);
+        if (element) element.value = measurements[field] ?? "";
+    });
+}
+
+function loadCustomerMeasurements() {
+    const phone = $("customerPhone")?.value.trim();
+    if (!phone || editingOrderId !== null) return;
+    fetch(`/api/customers/measurements?phone=${encodeURIComponent(phone)}`)
+        .then(response => response.ok ? response.json() : Promise.reject(response))
+        .then(data => setMeasurementFields(data.measurements))
+        .catch(error => console.error("Could not load customer measurements:", error));
+}
+
 
 /* =========================================================
    EDIT ORDER
@@ -1172,6 +1193,8 @@ function editOrder(id) {
             order.status;
 
     }
+
+    setMeasurementFields(order.measurements);
 
 
     openModal("orderModal");
@@ -1289,6 +1312,10 @@ function setupOrderForm() {
                 formData.append("payment_method", $("initialPaymentMethod")?.value || "Cash");
                 formData.append("phone", phone);
                 formData.append("status", $("orderStatus")?.value || "Received");
+                ["chest", "waist", "hip", "shoulder", "sleeve", "length"].forEach(field => {
+                    formData.append(`measurement_${field}`, $("measurement" + field.charAt(0).toUpperCase() + field.slice(1))?.value || "");
+                });
+                formData.append("measurement_notes", $("measurementNotes")?.value.trim() || "");
 
                 fetch(`/edit_order/${editingOrderId}`, {
                     method: "POST",
@@ -1473,7 +1500,16 @@ function viewOrder(id) {
         money(order.paid ?? order.initialPayment ?? 0) +
 
         "\nStatus: " +
-        order.status
+        order.status +
+
+        "\n\nMeasurements (inches): " +
+        (Object.keys(order.measurements || {}).length
+            ? ["Chest", "Waist", "Hip", "Shoulder", "Sleeve", "Length"].map(label => {
+                const field = label.toLowerCase();
+                return order.measurements[field] ? `${label}: ${order.measurements[field]}` : null;
+            }).filter(Boolean).join(", ") +
+                ((order.measurements?.notes) ? `\nNotes: ${order.measurements.notes}` : "")
+            : "Not recorded")
 
     );
 }
@@ -2546,6 +2582,8 @@ document.addEventListener(
             renderOrders();
 
             setupOrderForm();
+
+            $("customerPhone")?.addEventListener("change", loadCustomerMeasurements);
 
         }
 

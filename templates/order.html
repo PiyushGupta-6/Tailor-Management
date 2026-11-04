@@ -268,6 +268,20 @@
                     </select>
                 </div>
 
+                <fieldset class="measurement-section">
+                    <legend><i class="fa-solid fa-ruler-combined"></i> Customer Measurements</legend>
+                    <p>All values are in inches. Saved measurements are available for this customer’s future orders.</p>
+                    <div class="measurement-grid">
+                        <div class="form-group"><label>Chest</label><input type="number" name="measurement_chest" id="measurementChest" min="0" step="0.1" placeholder="e.g. 36"></div>
+                        <div class="form-group"><label>Waist</label><input type="number" name="measurement_waist" id="measurementWaist" min="0" step="0.1" placeholder="e.g. 30"></div>
+                        <div class="form-group"><label>Hip</label><input type="number" name="measurement_hip" id="measurementHip" min="0" step="0.1" placeholder="e.g. 38"></div>
+                        <div class="form-group"><label>Shoulder</label><input type="number" name="measurement_shoulder" id="measurementShoulder" min="0" step="0.1" placeholder="e.g. 14"></div>
+                        <div class="form-group"><label>Sleeve</label><input type="number" name="measurement_sleeve" id="measurementSleeve" min="0" step="0.1" placeholder="e.g. 22"></div>
+                        <div class="form-group"><label>Length</label><input type="number" name="measurement_length" id="measurementLength" min="0" step="0.1" placeholder="e.g. 40"></div>
+                    </div>
+                    <div class="form-group"><label>Notes</label><textarea name="measurement_notes" id="measurementNotes" rows="3" placeholder="Neck style, fitting notes, or other instructions"></textarea></div>
+                </fieldset>
+
 
                 <button type="submit" class="save-btn">
                     Save Order

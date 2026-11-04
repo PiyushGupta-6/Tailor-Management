@@ -43,6 +43,22 @@ class Customer(db.Model):
     phone = db.Column(db.String(20), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     orders = db.relationship("Order", back_populates="customer_record")
+    measurements = db.relationship("Measurement", back_populates="customer", uselist=False,
+                                   cascade="all, delete-orphan")
+
+
+class Measurement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False, unique=True, index=True)
+    chest = db.Column(db.Float, nullable=True)
+    waist = db.Column(db.Float, nullable=True)
+    hip = db.Column(db.Float, nullable=True)
+    shoulder = db.Column(db.Float, nullable=True)
+    sleeve = db.Column(db.Float, nullable=True)
+    length = db.Column(db.Float, nullable=True)
+    notes = db.Column(db.Text, nullable=False, default="")
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    customer = db.relationship("Customer", back_populates="measurements")
 
 
 class Order(db.Model):
@@ -94,6 +110,36 @@ def payment_status(order):
     return "Partial" if paid > 0 else "Unpaid"
 
 
+def update_measurements(customer, form):
+    values = {}
+    for field in ("chest", "waist", "hip", "shoulder", "sleeve", "length"):
+        raw_value = form.get(f"measurement_{field}", "").strip()
+        if not raw_value:
+            values[field] = None
+            continue
+        value = float(raw_value)
+        if not math.isfinite(value) or value <= 0:
+            raise ValueError("Measurements must be greater than zero.")
+        values[field] = value
+
+    notes = form.get("measurement_notes", "").strip()
+    if not any(value is not None for value in values.values()) and not notes:
+        return
+    measurement = customer.measurements or Measurement(customer=customer)
+    for field, value in values.items():
+        setattr(measurement, field, value)
+    measurement.notes = notes
+    db.session.add(measurement)
+
+
+def measurement_json(customer):
+    measurement = customer.measurements if customer else None
+    if not measurement:
+        return {}
+    return {field: getattr(measurement, field) for field in
+            ("chest", "waist", "hip", "shoulder", "sleeve", "length", "notes")}
+
+
 def order_json(order):
     paid = paid_total(order)
     order.payment = payment_status(order)
@@ -103,6 +149,7 @@ def order_json(order):
         "deliveryDate": order.delivery_date.isoformat(), "amount": order.amount,
         "payment": order.payment, "paid": paid, "initialPayment": paid,
         "balance": round(max(0, order.amount - paid), 2), "status": order.status,
+        "measurements": measurement_json(order.customer_record),
     }
 
 
@@ -219,6 +266,8 @@ def add_order():
         elif phone:
             customer = Customer(name=name, phone=phone)
             db.session.add(customer)
+        if customer:
+            update_measurements(customer, request.form)
         order = Order(customer=name, phone=phone or "Not added", customer_record=customer,
                       garment=garment, order_date=order_date, delivery_date=delivery_date,
                       amount=amount, payment="Unpaid", status="Received")
@@ -298,6 +347,7 @@ def edit_order(order_id):
             else:
                 customer.name = name
             order.customer_record = customer
+            update_measurements(customer, request.form)
         db.session.commit()
         return jsonify(success=True, order=order_json(order))
     except Exception as exc:
@@ -317,6 +367,16 @@ def delete_order(order_id):
 @login_required
 def order():
     return render_template("order.html", orders=[order_json(item) for item in Order.query.order_by(Order.id.desc()).all()])
+
+
+@app.route("/api/customers/measurements")
+@login_required
+def customer_measurements():
+    phone = request.args.get("phone", "").strip()
+    if not phone:
+        return jsonify(measurements={})
+    customer = Customer.query.filter_by(phone=phone).first()
+    return jsonify(measurements=measurement_json(customer))
 
 
 @app.route("/batch")

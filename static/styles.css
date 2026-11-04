@@ -1371,6 +1371,19 @@ tr:last-child td {
     border-color: #4f46e5;
 }
 
+.measurement-section {
+    margin: 20px 0;
+    padding: 16px;
+    border: 1px solid #d9e0f0;
+    border-radius: 12px;
+}
+
+.measurement-section legend { padding: 0 6px; font-weight: 700; color: #354074; }
+.measurement-section p { margin: 0 0 14px; color: #667085; font-size: 12px; }
+.measurement-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.measurement-section textarea { width: 100%; padding: 11px; border: 1px solid #d9e0f0; border-radius: 9px; font: inherit; resize: vertical; }
+@media (max-width: 520px) { .measurement-grid { grid-template-columns: 1fr; } }
+
 
 /* =========================================================
    TABLET
@@ -1720,4 +1733,120 @@ tr:last-child td {
     .dashboard-hero { min-height:235px; align-items:flex-start; padding:27px 22px; border-radius:19px; }.hero-copy { max-width:80%; }.hero-copy h2 { font-size:34px; }.hero-copy p { font-size:11px; }.hero-art { right:-120px; top:-15px; transform:scale(.8); opacity:.35; }.hero-date { right:17px; bottom:15px; font-size:9px; }
     .dashboard-stats { gap:10px; margin:13px 0; }.dashboard-stat { min-height:137px; padding:14px; border-radius:14px; }.dashboard-stat strong { font-size:21px; }
     .dashboard-lower { grid-template-columns:1fr; gap:12px; }.dashboard-panel { padding:18px; }.dashboard-actions { grid-template-columns:1fr; }.dashboard-actions > a { padding:11px 0; }
+}
+
+/* Responsive sign-in and account creation pages */
+.split-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: 100vh;
+    min-height: 100svh;
+    background: #eae1f2;
+}
+
+.split-side {
+    min-width: 0;
+}
+
+.left-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(24px, 6vw, 80px);
+    background: #eae1f2;
+}
+
+.left-side form {
+    width: min(100%, 440px);
+}
+
+.loginpg,
+.createpg {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    background: none;
+}
+
+.info {
+    width: 100%;
+    margin: 0 0 30px;
+    text-align: left;
+}
+
+.info h1 {
+    margin: 0 0 12px;
+    color: #172b5c;
+    font-size: clamp(30px, 3vw, 40px);
+}
+
+.info span,
+.loginpg > span,
+.createpg > span {
+    color: #667085;
+    line-height: 1.6;
+}
+
+.loginpg .input,
+.createpg .input {
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.loginpg input,
+.createpg input,
+.loginpg button,
+.createpg button {
+    width: 100%;
+    min-width: 0;
+    height: 52px;
+}
+
+.loginpg input,
+.createpg input {
+    padding: 0 15px;
+    box-shadow: none;
+}
+
+.loginpg input:focus,
+.createpg input:focus {
+    outline: 2px solid #6166c7;
+    outline-offset: 2px;
+}
+
+.loginpg button,
+.createpg button {
+    box-shadow: 0 8px 18px rgb(61 61 193 / 20%);
+}
+
+.right-side {
+    min-height: 100vh;
+    min-height: 100svh;
+    background: linear-gradient(135deg, rgb(23 43 92 / 25%), rgb(23 43 92 / 5%)),
+        url("./images/login.jpeg") center / cover no-repeat;
+}
+
+@media (max-width: 760px) {
+    .split-container {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .right-side {
+        display: none;
+    }
+
+    .left-side {
+        padding: 32px 24px;
+    }
+
+    .info {
+        margin-bottom: 26px;
+    }
+}
+
+@media (max-width: 360px) {
+    .left-side {
+        padding: 26px 18px;
+    }
 }
